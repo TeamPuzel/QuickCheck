@@ -2,7 +2,6 @@
 // Copyright (c) 2025 All rights reserved.
 module;
 #include <print>
-#include <iostream>
 #include <tuple>
 #include <concepts>
 #include <random>
@@ -91,7 +90,6 @@ export namespace quick {
             }
         }
         if (success) { std::println(" -> success"); }
-        std::cout << std::endl;
     }
 
     auto assert(bool condition) throw(CheckError) -> void { if (not condition) throw CheckError(); }
