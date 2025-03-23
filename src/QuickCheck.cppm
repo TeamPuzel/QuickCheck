@@ -58,6 +58,8 @@ template <size_t I, size_t N, typename Fn> constexpr auto constexpr_for(Fn&& bod
 }
 
 export namespace quick {
+    constexpr size_t defaultCheckCount = 1024;
+
     template <typename T, typename Gen = rng::DefaultRandomNumberGenerator>
     concept Arbitrary = rng::RandomNumberGenerator<Gen> and requires(T a, Gen& gen) {
         { impl::Arbitrary<T>::arbitrary(gen) } -> std::same_as<T>;
@@ -67,8 +69,8 @@ export namespace quick {
         [[nodiscard]] auto what() const noexcept -> char const* override { return "quickcheck check error"; }
     };
 
-    template <Arbitrary... Values, std::invocable<Values...> Fn> auto check(char const* property, Fn&& body) noexcept -> void {
-        constexpr auto count = 1024 * 32;
+    template <Arbitrary... Values, std::invocable<Values...> Fn>
+    auto check(char const* property, size_t count, Fn&& body) noexcept -> void {
         bool success = true;
 
         std::print("quick::check checking property: {}", property);
@@ -92,5 +94,10 @@ export namespace quick {
         if (success) { std::println(" -> success"); }
     }
 
+    template <Arbitrary... Values, std::invocable<Values...> Fn> auto check(char const* property, Fn&& body) noexcept -> void {
+        check<Values...>(property, defaultCheckCount, std::forward<Fn>(body));
+    }
+
     auto assert(bool condition) throw(CheckError) -> void { if (not condition) throw CheckError(); }
 }
+
